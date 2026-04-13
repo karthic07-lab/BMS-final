@@ -1,34 +1,64 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request, jsonify, render_template
 import joblib
+import numpy as np
+import os
 
-# Initialize a Flask application instance
 app = Flask(__name__)
 
-@app.route('/')
-def home():
-    return 'Welcome to the EV Battery Thermal Runaway Prediction API!'
+# Load model and scaler safely
+MODEL_PATH = 'logistic_regression_model.joblib'
+SCALER_PATH = 'standard_scaler.joblib'
 
-# Load the trained model and scaler
+model = None
+scaler = None
+feature_columns = ['voltage', 'current_percentage', 'temperature']
+
 try:
-    model = joblib.load('logistic_regression_model.joblib')
-    scaler = joblib.load('standard_scaler.joblib')
-    # Define feature_columns based on the columns used during training
-    # These were determined from X_train.columns during the preprocessing phase.
-    feature_columns = ['voltage', 'current_percentage', 'temperature']
-
-    print("Model and scaler loaded successfully.")
-    print(f"Expected feature columns: {feature_columns}")
+    model = joblib.load(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
+    print("✅ Model and scaler loaded successfully.")
 except Exception as e:
-    print(f"Error loading model or scaler: {e}")
-    model = None
-    scaler = None
-    feature_columns = []
+    print(f"❌ Error loading model/scaler: {e}")
 
-# Create a basic route for the root URL
+# ---------------- ROUTES ---------------- #
+
 @app.route('/')
 def home():
-    return 'Welcome to the EV Battery Thermal Runaway Prediction API!'
+    return render_template('index.html')
 
-# Standard block to run the Flask application in debug mode
+@app.route('/predict', methods=['POST'])
+def predict():
+    if model is None or scaler is None:
+        return jsonify({'error': 'Model not loaded'}), 500
+
+    try:
+        data = request.get_json()
+
+        # Extract inputs
+        voltage = float(data['voltage'])
+        current = float(data['current_percentage'])
+        temperature = float(data['temperature'])
+
+        # Convert to array
+        input_data = np.array([[voltage, current, temperature]])
+
+        # Scale input
+        scaled_data = scaler.transform(input_data)
+
+        # Predict
+        prediction = model.predict(scaled_data)[0]
+        probability = model.predict_proba(scaled_data)[0][1]
+
+        return jsonify({
+            'prediction': int(prediction),
+            'probability': float(probability)
+        })
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 400
+
+# ---------------- RUN ---------------- #
+
 if __name__ == '__main__':
-    app.run(debug=True, host='0.0.0.0', port=5000)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host='0.0.0.0', port=port, debug=False)
