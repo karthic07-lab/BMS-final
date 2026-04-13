@@ -10,7 +10,7 @@ export default function App() {
 
   const [result, setResult] = useState(null);
 
-  const API_URL = "https://your-backend-url.onrender.com/predict";
+  const API_URL = "https://diplomatic-magic-production.up.railway.app/predict";
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
