@@ -7,11 +7,17 @@ import os
 app = Flask(__name__)
 CORS(app)
 
-MODEL_PATH = 'logistic_regression_model.joblib'
+MODEL_PATH = 'logistic_regression_model22.joblib'
 SCALER_PATH = 'standard_scaler.joblib'
 
-model = joblib.load(MODEL_PATH)
-scaler = joblib.load(SCALER_PATH)
+try:
+    model = joblib.load(MODEL_PATH)
+    scaler = joblib.load(SCALER_PATH)
+    print("Model loaded successfully")
+except Exception as e:
+    print("Model load error:", e)
+    model = None
+    scaler = None
 
 @app.route('/')
 def home():
