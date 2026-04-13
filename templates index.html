@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EV Battery Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <style>
+        body {
+            font-family: Arial;
+            background: #0f172a;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: #1e293b;
+            padding: 30px;
+            border-radius: 12px;
+            width: 320px;
+            box-shadow: 0px 0px 20px rgba(0,0,0,0.5);
+        }
+
+        input, button {
+            width: 100%;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 6px;
+            border: none;
+        }
+
+        button {
+            background: #38bdf8;
+            color: black;
+            font-weight: bold;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background: #0ea5e9;
+        }
+
+        .result {
+            margin-top: 15px;
+            font-size: 16px;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="card">
+    <h2>EV Battery Risk</h2>
+
+    <input type="number" id="voltage" placeholder="Voltage">
+    <input type="number" id="current" placeholder="Current %">
+    <input type="number" id="temperature" placeholder="Temperature">
+
+    <button onclick="predict()">Predict</button>
+
+    <div class="result" id="result"></div>
+</div>
+
+<script>
+async function predict() {
+    const voltage = document.getElementById("voltage").value;
+    const current = document.getElementById("current").value;
+    const temperature = document.getElementById("temperature").value;
+
+    const response = await fetch('/predict', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+            voltage: voltage,
+            current_percentage: current,
+            temperature: temperature
+        })
+    });
+
+    const data = await response.json();
+
+    if (data.error) {
+        document.getElementById("result").innerHTML = "Error: " + data.error;
+    } else {
+        document.getElementById("result").innerHTML =
+            `Prediction: ${data.prediction} <br> Probability: ${data.probability.toFixed(2)}`;
+    }
+}
+</script>
+
+</body>
+</html>
