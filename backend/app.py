@@ -8,7 +8,7 @@ app = Flask(__name__)
 CORS(app)
 
 MODEL_PATH = 'logistic_regression_model22.joblib'
-SCALER_PATH = 'standard_scaler.joblib'
+SCALER_PATH = 'standard_scaler-2.joblib'
 
 try:
     model = joblib.load(MODEL_PATH)
