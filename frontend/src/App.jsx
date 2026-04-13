@@ -9,9 +9,9 @@ export default function App() {
   });
 
   const [result, setResult] = useState(null);
-
-  const API_URL = "https://diplomatic-magic-production.up.railway.app/predict";
-
+  
+const API_URL = "https://truthful-purpose-production-5543.up.railway.app/predict";
+  
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
