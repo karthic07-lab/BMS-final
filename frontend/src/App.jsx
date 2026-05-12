@@ -1,7 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 
-const API_URL = "https://truthful-purpose-production-5543.up.railway.app/predict";
+const API_URL = "https://truthful-purpose-production-5543.up.railway.app/";
 
 export default function App() {
   const [voltage, setVoltage] = useState("");
